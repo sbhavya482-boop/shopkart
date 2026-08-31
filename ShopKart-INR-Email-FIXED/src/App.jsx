@@ -33,6 +33,9 @@ function Header() {
   </header>
 }
 function ProductCard({p}) {
+  const liked = useSelector(state => state.wishlist.items.some(i => i.id === p.id));
+
+  // your existing code...
   const dispatch = useDispatch();
 
   const quantity = useSelector(
