@@ -43,3 +43,28 @@ footer{background:#111827;color:#fff;padding:55px 0}footer p{color:#9ca3af;font-
   border-radius: 50%;
   font-size: 12px;
 }
+.quantity-control {
+  display: flex;
+  align-items: center;
+  border: 1px solid #4a963f;
+  border-radius: 6px;
+  overflow: hidden;
+  height: 34px;
+}
+
+.quantity-control button {
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: white;
+  color: #28751f;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.quantity-control span {
+  min-width: 28px;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+}

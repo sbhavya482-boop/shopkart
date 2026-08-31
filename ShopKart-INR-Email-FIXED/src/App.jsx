@@ -32,10 +32,12 @@ function Header() {
     </div>
   </header>
 }
-
 function ProductCard({p}) {
   const dispatch = useDispatch();
-  const liked = useSelector(s=>s.wishlist.items.some(x=>x.id===p.id));
+
+  const quantity = useSelector(
+    s => s.cart.items.find(i => i.id === p.id)?.quantity || 0
+  );
   return <article className="card">
     <div className="product-img"><img src={p.image} alt={p.title}/>{p.badge && <span className="badge">{p.badge}</span>}
       <button className={"heart "+(liked?"liked":"")} onClick={()=>dispatch(toggleWishlist(p))}><Heart size={18} fill={liked?"currentColor":"none"}/></button>
@@ -44,7 +46,17 @@ function ProductCard({p}) {
       <div className="category">{p.category}</div>
       <Link to={`/product/${p.id}`} className="product-title">{p.title}</Link>
       <div className="rating"><Star size={15} fill="currentColor"/><b>{p.rating}</b><span>({Math.floor(p.rating*31)} reviews)</span></div>
-      <div className="card-bottom"><strong>{money(p.price)}</strong><button className="add-btn" onClick={()=>dispatch(addToCart(p))}><Plus size={17}/> Add</button></div>
+      <div className="card-bottom"><strong>{money(p.price)}</strong>{quantity === 0 ? (
+  <button className="add-btn" onClick={() => dispatch(addToCart(p))}>
+    <Plus size={17}/> Add
+  </button>
+) : (
+  <div className="quantity-control">
+    <button onClick={() => dispatch(decrement(p.id))}>−</button>
+    <span>{quantity}</span>
+    <button onClick={() => dispatch(increment(p.id))}>+</button>
+  </div>
+)}</div>
     </div>
   </article>
 }
@@ -71,17 +83,21 @@ function Home() {
     {query && <div className="search-note">Showing results for <b>“{query}”</b></div>}
     <div className="grid">{list.map(p=><ProductCard key={p.id} p={p}/>)}</div>
     {!list.length && <div className="empty"><Search size={38}/><h3>No products found</h3><p>Try another search or category.</p></div>}
-  </main> 
-  <section className="trust"><div className="wrap trust-grid"><div><Truck/><b>Free shipping</b><span>On orders over ₹1,500</span></div><div><ShieldCheck/><b>Secure checkout</b><span>100% protected payments</span></div><div><RotateCcw/><b>Easy returns</b><span>30-day return policy</span></div></div></section> 
- 
-  {cartCount > 0 && <Link to="/cart" className="floating-bag"><ShoppingBag size={20}/> Go to Bag <span>{cartCount}</span></Link>} 
-  </>; 
-} 
-function ProductDetails() {
+  </main>
+   <section className="trust"><div className="wrap trust-grid"><div><Truck/><b>Free shipping</b><span>On orders over ₹1,500</span></div><div><ShieldCheck/><b>Secure checkout</b><span>100% protected payments</span></div><div><RotateCcw/><b>Easy returns</b><span>30-day return policy</span></div></div></section>
+
+  {cartCount > 0 && <Link to="/cart" className="floating-bag"><ShoppingBag size={20}/> Go to Bag <span>{cartCount}</span></Link>}
+  </>;
+}
+
+function ProductDetails() { 
   const {id}=useParams(); const p=products.find(x=>x.id===Number(id)); const dispatch=useDispatch();
-const cartCount=useSelector(s=>s.cart.items.reduce((a,i)=>a+i.quantity,0));
+  const cartCount=useSelector(s=>s.cart.items.reduce((a,i)=>a+i.quantity,0));
   if(!p) return <div className="wrap empty"><h2>Product not found</h2><Link to="/">Back to shop</Link></div>;
-  return <main className="wrap detail"><div className="detail-image"><img src={p.image}/></div><div className="detail-info"><span className="eyebrow">{p.category}</span><h1>{p.title}</h1><div className="rating large"><Star fill="currentColor"/><b>{p.rating}</b><span>Highly rated by customers</span></div><div className="price">{money(p.price)}</div><p className="desc">Designed for everyday use with premium materials, thoughtful details and a clean modern finish. A versatile choice for your daily routine.</p><div className="stock"><span/> {p.stock} left in stock</div><button className="primary big" onClick={()=>dispatch(addToCart(p))}><ShoppingBag size={19}/> Add to Bag</button><div className="detail-benefits"><span><Truck/> Free delivery over ₹1,500</span><span><RotateCcw/> 30-day returns</span></div></div></main>
+  return <main className="wrap detail"><div className="detail-image"><img src={p.image}/></div><div className="detail-info"><span className="eyebrow">{p.category}</span><h1>{p.title}</h1><div className="rating large"><Star fill="currentColor"/><b>{p.rating}</b><span>Highly rated by customers</span></div><div className="price">{money(p.price)}</div><p className="desc">Designed for everyday use with premium materials, thoughtful details and a clean modern finish. A versatile choice for your daily routine.</p><div className="stock"><span/> {p.stock} left in stock</div><button className="primary big" onClick={()=>dispatch(addToCart(p))}>
+  <ShoppingBag size={19}/>
+  Add to Bag
+</button><div className="detail-benefits"><span><Truck/> Free delivery over ₹1,500</span><span><RotateCcw/> 30-day returns</span></div></div></main>
 {cartCount > 0 && <Link to="/cart" className="floating-bag"><ShoppingBag size={20}/> Go to Bag <span>{cartCount}</span></Link>}
 }
 
