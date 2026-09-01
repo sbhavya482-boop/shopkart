@@ -93,17 +93,102 @@ function Home() {
   </>;
 }
 
-function ProductDetails() { 
-  const {id}=useParams(); const p=products.find(x=>x.id===Number(id)); const dispatch=useDispatch();
-  const cartCount=useSelector(s=>s.cart.items.reduce((a,i)=>a+i.quantity,0));
-  if(!p) return <div className="wrap empty"><h2>Product not found</h2><Link to="/">Back to shop</Link></div>;
-  return <main className="wrap detail"><div className="detail-image"><img src={p.image}/></div><div className="detail-info"><span className="eyebrow">{p.category}</span><h1>{p.title}</h1><div className="rating large"><Star fill="currentColor"/><b>{p.rating}</b><span>Highly rated by customers</span></div><div className="price">{money(p.price)}</div><p className="desc">Designed for everyday use with premium materials, thoughtful details and a clean modern finish. A versatile choice for your daily routine.</p><div className="stock"><span/> {p.stock} left in stock</div><button className="primary big" onClick={()=>dispatch(addToCart(p))}>
-  <ShoppingBag size={19}/>
-  Add to Bag
-</button><div className="detail-benefits"><span><Truck/> Free delivery over ₹1,500</span><span><RotateCcw/> 30-day returns</span></div></div></main>
-{cartCount > 0 && <Link to="/cart" className="floating-bag"><ShoppingBag size={20}/> Go to Bag <span>{cartCount}</span></Link>}
-}
+function ProductDetails() {
+  const { id } = useParams();
+  const p = products.find(x => x.id === Number(id));
+  const dispatch = useDispatch();
 
+  const cartCount = useSelector(
+    s => s.cart.items.reduce((a, i) => a + i.quantity, 0)
+  );
+
+  const quantity = useSelector(
+    s => s.cart.items.find(i => i.id === p?.id)?.quantity || 0
+  );
+
+  if (!p) {
+    return (
+      <div className="wrap empty">
+        <h2>Product not found</h2>
+        <Link to="/">Back to shop</Link>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <main className="wrap detail">
+        <div className="detail-image">
+          <img src={p.image} />
+        </div>
+
+        <div className="detail-info">
+          <span className="eyebrow">{p.category}</span>
+
+          <h1>{p.title}</h1>
+
+          <div className="rating large">
+            <Star fill="currentColor" />
+            <b>{p.rating}</b>
+            <span>Highly rated by customers</span>
+          </div>
+
+          <div className="price">{money(p.price)}</div>
+
+          <p className="desc">
+            Designed for everyday use with premium materials,
+            thoughtful details and a clean modern finish.
+            A versatile choice for your daily routine.
+          </p>
+
+          <div className="stock">
+            <span /> {p.stock} left in stock
+          </div>
+
+          {/* ADD TO BAG / QUANTITY */}
+          {quantity === 0 ? (
+            <button
+              className="primary big"
+              onClick={() => dispatch(addToCart(p))}
+            >
+              <ShoppingBag size={19} />
+              Add to Bag
+            </button>
+          ) : (
+            <div className="quantity-control">
+              <button onClick={() => dispatch(decrement(p.id))}>
+                −
+              </button>
+
+              <span>{quantity}</span>
+
+              <button onClick={() => dispatch(increment(p.id))}>
+                +
+              </button>
+            </div>
+          )}
+
+          <div className="detail-benefits">
+            <span>
+              <Truck /> Free delivery over ₹1,500
+            </span>
+
+            <span>
+              <RotateCcw /> 30-day returns
+            </span>
+          </div>
+        </div>
+      </main>
+
+      {cartCount > 0 && (
+        <Link to="/cart" className="floating-bag">
+          <ShoppingBag size={20} />
+          Go to Bag <span>{cartCount}</span>
+        </Link>
+      )}
+    </>
+  );
+}
 function Cart() {
   const items=useSelector(s=>s.cart.items); const dispatch=useDispatch(); const nav=useNavigate();
   const subtotal=items.reduce((a,i)=>a+i.price*i.quantity,0), shipping=subtotal>=1500||subtotal===0?0:99, tax=subtotal*.08, total=subtotal+shipping+tax;
